@@ -1,0 +1,1735 @@
+openapi: 3.1.0
+info:
+  title: Workshops Platform API
+  version: 1.0.0
+  description: >-
+    العقد المرجعي لمنصة ورش. المصادقة نفسها تحت /api/auth/* تديرها Better Auth؛
+    بقية المسارات تحت /api/v1 وتستخدم جلسة Cookie آمنة وCSRF عند تغيير الحالة.
+servers:
+  - url: https://workshops.gumaan.app/api/v1
+    description: Production
+  - url: http://localhost:5173/api/v1
+    description: Local
+tags:
+  - name: System
+  - name: Identity
+  - name: Workspaces
+  - name: Organizations
+  - name: Programs
+  - name: Workshops
+  - name: Registration
+  - name: Agenda
+  - name: Groups
+  - name: Activities
+  - name: Submissions
+  - name: Live
+  - name: Reports
+  - name: Certificates
+  - name: Files
+  - name: Templates
+security:
+  - sessionCookie: []
+paths:
+  /health:
+    get:
+      tags: [System]
+      operationId: getHealth
+      security: []
+      responses:
+        "200":
+          description: Service is running.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /me:
+    get:
+      tags: [Identity]
+      operationId: getCurrentUser
+      responses:
+        "200": {$ref: "#/components/responses/CurrentUser"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+  /workspaces:
+    get:
+      tags: [Workspaces]
+      operationId: listMyWorkspaces
+      responses:
+        "200": {$ref: "#/components/responses/WorkspaceList"}
+    post:
+      tags: [Workspaces]
+      operationId: createWorkspace
+      x-permission: platform_admin or account workspace creation policy
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/WorkspaceInput"}
+      responses:
+        "201": {$ref: "#/components/responses/WorkspaceItem"}
+        "422": {$ref: "#/components/responses/ValidationError"}
+  /workspaces/{workspaceId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+    get:
+      tags: [Workspaces]
+      operationId: getWorkspace
+      x-permission: workspace.read
+      responses:
+        "200": {$ref: "#/components/responses/WorkspaceItem"}
+        "404": {$ref: "#/components/responses/NotFound"}
+    patch:
+      tags: [Workspaces]
+      operationId: updateWorkspace
+      x-permission: workspace.update
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/WorkspacePatch"}
+      responses:
+        "200": {$ref: "#/components/responses/WorkspaceItem"}
+        "409": {$ref: "#/components/responses/Conflict"}
+        "422": {$ref: "#/components/responses/ValidationError"}
+  /workspaces/{workspaceId}/members:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+    get:
+      tags: [Workspaces]
+      operationId: listWorkspaceMembers
+      x-permission: workspace.members.manage
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema: {type: string, enum: [invited, active, suspended, ended]}
+      responses:
+        "200": {$ref: "#/components/responses/MemberList"}
+  /workspaces/{workspaceId}/members/{membershipId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+      - name: membershipId
+        in: path
+        required: true
+        schema: {$ref: "#/components/schemas/Id"}
+    patch:
+      tags: [Workspaces]
+      operationId: updateWorkspaceMembership
+      x-permission: workspace.members.manage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                role: {type: string, enum: [workspace_owner, workspace_admin, program_manager]}
+                status: {type: string, enum: [active, suspended, ended]}
+      responses:
+        "200": {$ref: "#/components/responses/MemberItem"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /workspaces/{workspaceId}/organizations:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+    get:
+      tags: [Organizations]
+      operationId: listOrganizations
+      x-permission: organization.read
+      parameters:
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - name: primaryField
+          in: query
+          schema: {type: string}
+        - name: region
+          in: query
+          schema: {type: string}
+      responses:
+        "200": {$ref: "#/components/responses/OrganizationList"}
+    post:
+      tags: [Organizations]
+      operationId: createOrganization
+      x-permission: organization.manage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/OrganizationInput"}
+      responses:
+        "201": {$ref: "#/components/responses/OrganizationItem"}
+        "422": {$ref: "#/components/responses/ValidationError"}
+  /workspaces/{workspaceId}/organizations/import:
+    post:
+      tags: [Organizations]
+      operationId: importOrganizationsCsv
+      x-permission: organization.manage
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, mode]
+              properties:
+                file: {type: string, format: binary}
+                mode: {type: string, enum: [validate_only, commit]}
+      responses:
+        "200":
+          description: Import validation/result.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ImportResult"}
+  /workspaces/{workspaceId}/organizations/{organizationId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+      - $ref: "#/components/parameters/OrganizationId"
+    get:
+      tags: [Organizations]
+      operationId: getOrganization
+      x-permission: organization.read
+      responses:
+        "200": {$ref: "#/components/responses/OrganizationItem"}
+        "404": {$ref: "#/components/responses/NotFound"}
+    patch:
+      tags: [Organizations]
+      operationId: updateOrganization
+      x-permission: organization.manage
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/OrganizationPatch"}
+      responses:
+        "200": {$ref: "#/components/responses/OrganizationItem"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /workspaces/{workspaceId}/programs:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+    get:
+      tags: [Programs]
+      operationId: listPrograms
+      x-permission: program.manage
+      responses:
+        "200":
+          description: Program list.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PaginatedPrograms"}
+    post:
+      tags: [Programs]
+      operationId: createProgram
+      x-permission: program.manage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ProgramInput"}
+      responses:
+        "201":
+          description: Created program.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProgramEnvelope"}
+  /workspaces/{workspaceId}/workshops:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+    get:
+      tags: [Workshops]
+      operationId: listWorkshops
+      x-permission: workshop.read
+      parameters:
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema: {$ref: "#/components/schemas/WorkshopStatus"}
+        - name: programId
+          in: query
+          schema: {$ref: "#/components/schemas/Id"}
+      responses:
+        "200": {$ref: "#/components/responses/WorkshopList"}
+    post:
+      tags: [Workshops]
+      operationId: createWorkshop
+      x-permission: workshop.create
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/WorkshopInput"
+                - type: object
+                  properties:
+                    source:
+                      type: object
+                      properties:
+                        type: {type: string, enum: [blank, template, workshop_copy]}
+                        id: {$ref: "#/components/schemas/Id"}
+      responses:
+        "201": {$ref: "#/components/responses/WorkshopItem"}
+        "422": {$ref: "#/components/responses/ValidationError"}
+  /workspaces/{workspaceId}/workshops/{workshopId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+      - $ref: "#/components/parameters/WorkshopId"
+    get:
+      tags: [Workshops]
+      operationId: getWorkshop
+      x-permission: workshop.read
+      responses:
+        "200": {$ref: "#/components/responses/WorkshopItem"}
+        "404": {$ref: "#/components/responses/NotFound"}
+    patch:
+      tags: [Workshops]
+      operationId: updateWorkshop
+      x-permission: workshop.update
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/WorkshopPatch"}
+      responses:
+        "200": {$ref: "#/components/responses/WorkshopItem"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/transition:
+    post:
+      tags: [Workshops]
+      operationId: transitionWorkshop
+      x-permission: workshop.publish or activity.run
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toStatus]
+              additionalProperties: false
+              properties:
+                toStatus: {$ref: "#/components/schemas/WorkshopStatus"}
+                reason: {type: string, maxLength: 500}
+      responses:
+        "200": {$ref: "#/components/responses/WorkshopItem"}
+        "409": {$ref: "#/components/responses/Conflict"}
+        "422": {$ref: "#/components/responses/ValidationError"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/readiness:
+    get:
+      tags: [Workshops]
+      operationId: getWorkshopReadiness
+      x-permission: workshop.update
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+      responses:
+        "200":
+          description: Blocking errors and warnings before publication/start.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [ready, errors, warnings]
+                    properties:
+                      ready: {type: boolean}
+                      errors: {type: array, items: {$ref: "#/components/schemas/Issue"}}
+                      warnings: {type: array, items: {$ref: "#/components/schemas/Issue"}}
+  /workspaces/{workspaceId}/workshops/{workshopId}/days:
+    get:
+      tags: [Agenda]
+      operationId: listWorkshopDays
+      x-permission: workshop.read
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+      responses:
+        "200":
+          description: Days with ordered agenda items.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AgendaEnvelope"}
+    post:
+      tags: [Agenda]
+      operationId: createWorkshopDay
+      x-permission: workshop.update
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/WorkshopDayInput"}
+      responses:
+        "201":
+          description: Created day.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/WorkshopDayEnvelope"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/agenda-items:
+    post:
+      tags: [Agenda]
+      operationId: createAgendaItem
+      x-permission: workshop.update
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/AgendaItemInput"}
+      responses:
+        "201":
+          description: Created item.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AgendaItemEnvelope"}
+        "422": {$ref: "#/components/responses/ValidationError"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/agenda/reorder:
+    post:
+      tags: [Agenda]
+      operationId: reorderAgenda
+      x-permission: workshop.update
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [dayId, orderedItemIds]
+              properties:
+                dayId: {$ref: "#/components/schemas/Id"}
+                orderedItemIds:
+                  type: array
+                  minItems: 1
+                  items: {$ref: "#/components/schemas/Id"}
+      responses:
+        "200": {$ref: "#/components/responses/NoContentEnvelope"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/invitations:
+    get:
+      tags: [Registration]
+      operationId: listInvitations
+      x-permission: registration.manage
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Invitation list without raw tokens.
+    post:
+      tags: [Registration]
+      operationId: createInvitation
+      x-permission: registration.manage
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/InvitationInput"}
+      responses:
+        "201":
+          description: Returns the raw invitation URL once.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/InvitationCreatedEnvelope"}
+  /public/invitations/{token}:
+    get:
+      tags: [Registration]
+      operationId: inspectInvitation
+      security: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema: {type: string, minLength: 24}
+      responses:
+        "200":
+          description: Minimal workshop and invitation data.
+        "404": {$ref: "#/components/responses/NotFound"}
+  /public/registrations:
+    post:
+      tags: [Registration]
+      operationId: submitPublicRegistration
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [workshopId, answers, turnstileToken]
+              properties:
+                workshopId: {$ref: "#/components/schemas/Id"}
+                invitationToken: {type: string}
+                answers: {type: object, additionalProperties: true}
+                turnstileToken: {type: string}
+      responses:
+        "201":
+          description: Created or pending registration.
+        "422": {$ref: "#/components/responses/ValidationError"}
+        "429": {$ref: "#/components/responses/RateLimited"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/registrations:
+    get:
+      tags: [Registration]
+      operationId: listRegistrations
+      x-permission: registration.manage
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/Cursor"
+        - name: status
+          in: query
+          schema: {type: string, enum: [pending, approved, waitlisted, rejected, cancelled]}
+      responses:
+        "200":
+          description: Paginated registrations.
+  /workspaces/{workspaceId}/workshops/{workshopId}/registrations/{registrationId}/decision:
+    post:
+      tags: [Registration]
+      operationId: decideRegistration
+      x-permission: registration.manage
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - name: registrationId
+          in: path
+          required: true
+          schema: {$ref: "#/components/schemas/Id"}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision: {type: string, enum: [approved, waitlisted, rejected, cancelled]}
+                note: {type: string, maxLength: 1000}
+      responses:
+        "200":
+          description: Updated registration.
+        "409": {$ref: "#/components/responses/Conflict"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/attendance:
+    get:
+      tags: [Registration]
+      operationId: listAttendance
+      x-permission: attendance.manage or report.read
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - name: dayId
+          in: query
+          schema: {$ref: "#/components/schemas/Id"}
+      responses:
+        "200":
+          description: Attendance matrix.
+    post:
+      tags: [Registration]
+      operationId: recordAttendance
+      x-permission: attendance.manage
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/AttendanceInput"}
+      responses:
+        "200":
+          description: Existing or newly recorded attendance.
+        "422": {$ref: "#/components/responses/ValidationError"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/groups:
+    get:
+      tags: [Groups]
+      operationId: listGroups
+      x-permission: workshop.read
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - name: activityId
+          in: query
+          schema: {$ref: "#/components/schemas/Id"}
+      responses:
+        "200":
+          description: Groups and safe member summary.
+    post:
+      tags: [Groups]
+      operationId: createGroup
+      x-permission: group.manage
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/GroupInput"}
+      responses:
+        "201":
+          description: Created group.
+  /workspaces/{workspaceId}/workshops/{workshopId}/groups/auto-assign:
+    post:
+      tags: [Groups]
+      operationId: autoAssignGroups
+      x-permission: group.manage
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [strategy, groupCount]
+              properties:
+                strategy: {type: string, enum: [balanced, by_organization, by_field, random]}
+                groupCount: {type: integer, minimum: 1, maximum: 100}
+                fieldKey: {type: string}
+      responses:
+        "200":
+          description: Assignment preview or committed groups according to mode.
+  /workspaces/{workspaceId}/workshops/{workshopId}/activities:
+    get:
+      tags: [Activities]
+      operationId: listActivities
+      x-permission: workshop.read
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - name: status
+          in: query
+          schema: {$ref: "#/components/schemas/ActivityStatus"}
+      responses:
+        "200": {$ref: "#/components/responses/ActivityList"}
+    post:
+      tags: [Activities]
+      operationId: createActivity
+      x-permission: activity.design
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ActivityInput"}
+      responses:
+        "201": {$ref: "#/components/responses/ActivityItem"}
+        "422": {$ref: "#/components/responses/ValidationError"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/activities/{activityId}:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+      - $ref: "#/components/parameters/WorkshopId"
+      - $ref: "#/components/parameters/ActivityId"
+    get:
+      tags: [Activities]
+      operationId: getActivity
+      x-permission: workshop.read or assigned participant
+      responses:
+        "200": {$ref: "#/components/responses/ActivityItem"}
+        "404": {$ref: "#/components/responses/NotFound"}
+    patch:
+      tags: [Activities]
+      operationId: updateActivity
+      x-permission: activity.design
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ActivityPatch"}
+      responses:
+        "200": {$ref: "#/components/responses/ActivityItem"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/activities/{activityId}/transition:
+    post:
+      tags: [Activities]
+      operationId: transitionActivity
+      x-permission: activity.run
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/ActivityId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toStatus]
+              properties:
+                toStatus: {$ref: "#/components/schemas/ActivityStatus"}
+                durationMinutes: {type: integer, minimum: 1}
+      responses:
+        "200": {$ref: "#/components/responses/ActivityItem"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/activities/{activityId}/submissions/mine:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+      - $ref: "#/components/parameters/WorkshopId"
+      - $ref: "#/components/parameters/ActivityId"
+    get:
+      tags: [Submissions]
+      operationId: getMySubmission
+      x-permission: submission.own or submission.group
+      responses:
+        "200": {$ref: "#/components/responses/SubmissionItem"}
+        "404": {$ref: "#/components/responses/NotFound"}
+    put:
+      tags: [Submissions]
+      operationId: saveMySubmissionDraft
+      x-permission: submission.own or submission.group
+      parameters:
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/SubmissionDraftInput"}
+      responses:
+        "200": {$ref: "#/components/responses/SubmissionItem"}
+        "409": {$ref: "#/components/responses/Conflict"}
+        "422": {$ref: "#/components/responses/ValidationError"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/activities/{activityId}/submissions/mine/submit:
+    post:
+      tags: [Submissions]
+      operationId: submitMySubmission
+      x-permission: submission.own or submission.group
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/ActivityId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+      responses:
+        "200": {$ref: "#/components/responses/SubmissionItem"}
+        "409": {$ref: "#/components/responses/Conflict"}
+        "422": {$ref: "#/components/responses/ValidationError"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/activities/{activityId}/submissions:
+    get:
+      tags: [Submissions]
+      operationId: listActivitySubmissions
+      x-permission: submission.read_named or report.read
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/ActivityId"
+        - $ref: "#/components/parameters/Cursor"
+        - name: status
+          in: query
+          schema: {type: string, enum: [draft, submitted, returned, resubmitted, evaluated]}
+        - name: organizationId
+          in: query
+          schema: {$ref: "#/components/schemas/Id"}
+        - name: groupId
+          in: query
+          schema: {$ref: "#/components/schemas/Id"}
+      responses:
+        "200": {$ref: "#/components/responses/SubmissionList"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/submissions/{submissionId}/evaluations:
+    post:
+      tags: [Submissions]
+      operationId: evaluateSubmission
+      x-permission: submission.evaluate
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - name: submissionId
+          in: path
+          required: true
+          schema: {$ref: "#/components/schemas/Id"}
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/EvaluationInput"}
+      responses:
+        "201":
+          description: Evaluation revision created.
+        "422": {$ref: "#/components/responses/ValidationError"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/live-state:
+    get:
+      tags: [Live]
+      operationId: getLiveState
+      x-permission: workshop.read
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - name: sinceVersion
+          in: query
+          schema: {type: integer, minimum: 1}
+      responses:
+        "200": {$ref: "#/components/responses/LiveState"}
+        "204": {$ref: "#/components/responses/NoChange"}
+    patch:
+      tags: [Live]
+      operationId: updateLiveState
+      x-permission: activity.run
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/IfMatch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/LiveStatePatch"}
+      responses:
+        "200": {$ref: "#/components/responses/LiveState"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /workspaces/{workspaceId}/workshops/{workshopId}/dashboard:
+    get:
+      tags: [Reports]
+      operationId: getWorkshopDashboard
+      x-permission: report.read
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - name: organizationId
+          in: query
+          schema: {$ref: "#/components/schemas/Id"}
+        - name: groupId
+          in: query
+          schema: {$ref: "#/components/schemas/Id"}
+      responses:
+        "200":
+          description: Aggregated workshop metrics with denominators.
+  /workspaces/{workspaceId}/workshops/{workshopId}/reports:
+    get:
+      tags: [Reports]
+      operationId: listReportSnapshots
+      x-permission: report.read
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+      responses:
+        "200":
+          description: Report revisions.
+    post:
+      tags: [Reports]
+      operationId: createReportSnapshot
+      x-permission: report.edit_narrative
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                narrative: {type: object, additionalProperties: true}
+                filters: {type: object, additionalProperties: true}
+      responses:
+        "201":
+          description: Immutable metrics snapshot with editable draft narrative.
+  /workspaces/{workspaceId}/workshops/{workshopId}/exports/{format}:
+    post:
+      tags: [Reports]
+      operationId: exportWorkshop
+      x-permission: report.read
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - name: format
+          in: path
+          required: true
+          schema: {type: string, enum: [csv, json]}
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sections:
+                  type: array
+                  items: {type: string, enum: [participants, attendance, submissions, evaluations, metrics]}
+                filters: {type: object, additionalProperties: true}
+      responses:
+        "200":
+          description: Streamed file or short-lived authorized download.
+  /workspaces/{workspaceId}/workshops/{workshopId}/certificates/issue:
+    post:
+      tags: [Certificates]
+      operationId: issueCertificates
+      x-permission: certificate.issue
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/WorkshopId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [templateId, mode]
+              properties:
+                templateId: {$ref: "#/components/schemas/Id"}
+                mode: {type: string, enum: [eligible, selected]}
+                workshopMembershipIds:
+                  type: array
+                  items: {$ref: "#/components/schemas/Id"}
+      responses:
+        "200":
+          description: Issued, skipped and failed counts.
+  /public/certificates/{publicCode}:
+    get:
+      tags: [Certificates]
+      operationId: verifyCertificate
+      security: []
+      parameters:
+        - name: publicCode
+          in: path
+          required: true
+          schema: {type: string, minLength: 16}
+      responses:
+        "200":
+          description: Minimal public verification data.
+        "404": {$ref: "#/components/responses/NotFound"}
+  /workspaces/{workspaceId}/files:
+    post:
+      tags: [Files]
+      operationId: uploadFile
+      x-permission: depends on purpose and target resource
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, purpose]
+              properties:
+                file: {type: string, format: binary}
+                purpose: {type: string, enum: [workspace_brand, workshop_cover, material, submission, certificate_asset, other]}
+                targetId: {$ref: "#/components/schemas/Id"}
+      responses:
+        "201":
+          description: Private file metadata, never a permanent public URL.
+        "413":
+          description: File exceeds configured size.
+        "415":
+          description: Unsupported or mismatched file type.
+  /workspaces/{workspaceId}/files/{fileId}/download:
+    get:
+      tags: [Files]
+      operationId: downloadFile
+      x-permission: derived from file purpose and relation
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - name: fileId
+          in: path
+          required: true
+          schema: {$ref: "#/components/schemas/Id"}
+      responses:
+        "200":
+          description: Authorized private file stream.
+        "404": {$ref: "#/components/responses/NotFound"}
+  /workspaces/{workspaceId}/templates:
+    get:
+      tags: [Templates]
+      operationId: listWorkshopTemplates
+      x-permission: workshop.read
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/Search"
+      responses:
+        "200":
+          description: Versioned workshop templates.
+    post:
+      tags: [Templates]
+      operationId: createWorkshopTemplate
+      x-permission: template.manage
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, sourceWorkshopId]
+              properties:
+                name: {type: string, minLength: 2, maxLength: 160}
+                category: {type: string, maxLength: 100}
+                description: {type: string, maxLength: 1000}
+                sourceWorkshopId: {$ref: "#/components/schemas/Id"}
+      responses:
+        "201":
+          description: Immutable template version created without operational data.
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: __Host-workshops_session
+  parameters:
+    WorkspaceId:
+      name: workspaceId
+      in: path
+      required: true
+      schema: {$ref: "#/components/schemas/Id"}
+    WorkshopId:
+      name: workshopId
+      in: path
+      required: true
+      schema: {$ref: "#/components/schemas/Id"}
+    OrganizationId:
+      name: organizationId
+      in: path
+      required: true
+      schema: {$ref: "#/components/schemas/Id"}
+    ActivityId:
+      name: activityId
+      in: path
+      required: true
+      schema: {$ref: "#/components/schemas/Id"}
+    Cursor:
+      name: cursor
+      in: query
+      schema: {type: string}
+    Limit:
+      name: limit
+      in: query
+      schema: {type: integer, minimum: 1, maximum: 100, default: 25}
+    Search:
+      name: q
+      in: query
+      schema: {type: string, maxLength: 200}
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema: {type: string}
+      description: Entity version or ETag used for optimistic concurrency.
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: {type: string, minLength: 16, maxLength: 128}
+  schemas:
+    Id:
+      type: string
+      minLength: 8
+      maxLength: 64
+      pattern: "^[A-Za-z0-9_-]+$"
+    Timestamp:
+      type: string
+      format: date-time
+    Error:
+      type: object
+      required: [code, message, requestId]
+      additionalProperties: false
+      properties:
+        code: {type: string}
+        message: {type: string}
+        fieldErrors:
+          type: object
+          additionalProperties:
+            type: array
+            items: {type: string}
+        requestId: {type: string}
+        details: {type: object, additionalProperties: true}
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error: {$ref: "#/components/schemas/Error"}
+    PageMeta:
+      type: object
+      required: [hasMore]
+      properties:
+        nextCursor: {type: [string, "null"]}
+        hasMore: {type: boolean}
+        total: {type: integer, minimum: 0}
+    HealthResponse:
+      type: object
+      required: [status, version, time]
+      properties:
+        status: {type: string, const: ok}
+        version: {type: string}
+        time: {$ref: "#/components/schemas/Timestamp"}
+    User:
+      type: object
+      required: [id, name, email, locale]
+      properties:
+        id: {$ref: "#/components/schemas/Id"}
+        name: {type: string}
+        email: {type: string, format: email}
+        locale: {type: string, enum: [ar, en]}
+        image: {type: [string, "null"], format: uri}
+    Workspace:
+      type: object
+      required: [id, slug, name, defaultLocale, timezone, status, version]
+      properties:
+        id: {$ref: "#/components/schemas/Id"}
+        slug: {type: string}
+        name: {type: string}
+        description: {type: [string, "null"]}
+        primaryColor: {type: string}
+        accentColor: {type: string}
+        defaultLocale: {type: string, enum: [ar, en]}
+        timezone: {type: string}
+        status: {type: string, enum: [active, suspended, pending_deletion]}
+        myRole: {type: string}
+        version: {type: integer, minimum: 1}
+    WorkspaceInput:
+      type: object
+      required: [slug, name, timezone]
+      additionalProperties: false
+      properties:
+        slug: {type: string, pattern: "^[a-z0-9-]{3,50}$"}
+        name: {type: string, minLength: 2, maxLength: 160}
+        description: {type: string, maxLength: 2000}
+        timezone: {type: string, default: Asia/Aden}
+        defaultLocale: {type: string, enum: [ar, en], default: ar}
+    WorkspacePatch:
+      type: object
+      minProperties: 1
+      additionalProperties: false
+      properties:
+        slug: {type: string, pattern: "^[a-z0-9-]{3,50}$"}
+        name: {type: string, minLength: 2, maxLength: 160}
+        description: {type: string, maxLength: 2000}
+        timezone: {type: string}
+        defaultLocale: {type: string, enum: [ar, en]}
+        primaryColor: {type: string, pattern: "^#[0-9A-Fa-f]{6}$"}
+        accentColor: {type: string, pattern: "^#[0-9A-Fa-f]{6}$"}
+        retentionDays: {type: integer, minimum: 30}
+    Member:
+      type: object
+      required: [id, user, role, status]
+      properties:
+        id: {$ref: "#/components/schemas/Id"}
+        user: {$ref: "#/components/schemas/User"}
+        role: {type: string}
+        status: {type: string}
+    Organization:
+      type: object
+      required: [id, name, status, version]
+      properties:
+        id: {$ref: "#/components/schemas/Id"}
+        name: {type: string}
+        shortName: {type: [string, "null"]}
+        region: {type: [string, "null"]}
+        city: {type: [string, "null"]}
+        primaryField: {type: [string, "null"]}
+        secondaryFields: {type: array, items: {type: string}}
+        description: {type: [string, "null"]}
+        website: {type: [string, "null"], format: uri}
+        status: {type: string, enum: [active, archived, merged]}
+        version: {type: integer, minimum: 1}
+    OrganizationInput:
+      type: object
+      required: [name]
+      additionalProperties: false
+      properties:
+        name: {type: string, minLength: 2, maxLength: 200}
+        shortName: {type: string, maxLength: 80}
+        region: {type: string, maxLength: 120}
+        city: {type: string, maxLength: 120}
+        primaryField: {type: string, maxLength: 160}
+        secondaryFields: {type: array, maxItems: 30, items: {type: string, maxLength: 120}}
+        description: {type: string, maxLength: 4000}
+        website: {type: string, format: uri}
+        contactName: {type: string, maxLength: 160}
+        contactEmail: {type: string, format: email}
+        contactPhone: {type: string, maxLength: 40}
+    OrganizationPatch:
+      type: object
+      minProperties: 1
+      additionalProperties: false
+      properties:
+        name: {type: string, minLength: 2, maxLength: 200}
+        shortName: {type: string, maxLength: 80}
+        region: {type: string, maxLength: 120}
+        city: {type: string, maxLength: 120}
+        primaryField: {type: string, maxLength: 160}
+        secondaryFields: {type: array, maxItems: 30, items: {type: string, maxLength: 120}}
+        description: {type: string, maxLength: 4000}
+        website: {type: string, format: uri}
+        contactName: {type: string, maxLength: 160}
+        contactEmail: {type: string, format: email}
+        contactPhone: {type: string, maxLength: 40}
+        status: {type: string, enum: [active, archived]}
+    ProgramInput:
+      type: object
+      required: [name]
+      properties:
+        name: {type: string, minLength: 2, maxLength: 200}
+        description: {type: string, maxLength: 4000}
+        startDate: {type: string, format: date}
+        endDate: {type: string, format: date}
+        goals: {type: array, items: {type: string, maxLength: 500}}
+    Program:
+      allOf:
+        - $ref: "#/components/schemas/ProgramInput"
+        - type: object
+          required: [id, status]
+          properties:
+            id: {$ref: "#/components/schemas/Id"}
+            status: {type: string, enum: [draft, active, completed, archived]}
+    ProgramEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data: {$ref: "#/components/schemas/Program"}
+    PaginatedPrograms:
+      type: object
+      required: [data, meta]
+      properties:
+        data: {type: array, items: {$ref: "#/components/schemas/Program"}}
+        meta: {$ref: "#/components/schemas/PageMeta"}
+    WorkshopStatus:
+      type: string
+      enum: [draft, registration_open, scheduled, live, paused, completed, archived]
+    Workshop:
+      type: object
+      required: [id, slug, title, deliveryMode, timezone, status, visibility, version]
+      properties:
+        id: {$ref: "#/components/schemas/Id"}
+        programId: {anyOf: [{$ref: "#/components/schemas/Id"}, {type: "null"}]}
+        slug: {type: string}
+        title: {type: string}
+        subtitle: {type: [string, "null"]}
+        description: {type: [string, "null"]}
+        deliveryMode: {type: string, enum: [in_person, online, hybrid]}
+        venueName: {type: [string, "null"]}
+        meetingUrl: {type: [string, "null"], format: uri}
+        timezone: {type: string}
+        startAt: {anyOf: [{$ref: "#/components/schemas/Timestamp"}, {type: "null"}]}
+        endAt: {anyOf: [{$ref: "#/components/schemas/Timestamp"}, {type: "null"}]}
+        capacity: {type: [integer, "null"], minimum: 1}
+        registrationMode: {type: string, enum: [closed, invite_only, public]}
+        registrationApproval: {type: string, enum: [automatic, manual]}
+        status: {$ref: "#/components/schemas/WorkshopStatus"}
+        visibility: {type: string, enum: [private, unlisted, public]}
+        version: {type: integer, minimum: 1}
+    WorkshopInput:
+      type: object
+      required: [slug, title, deliveryMode, timezone]
+      additionalProperties: false
+      properties:
+        programId: {$ref: "#/components/schemas/Id"}
+        slug: {type: string, pattern: "^[a-z0-9-]{3,80}$"}
+        title: {type: string, minLength: 2, maxLength: 240}
+        subtitle: {type: string, maxLength: 300}
+        description: {type: string, maxLength: 10000}
+        deliveryMode: {type: string, enum: [in_person, online, hybrid]}
+        venueName: {type: string, maxLength: 240}
+        venueAddress: {type: string, maxLength: 1000}
+        meetingUrl: {type: string, format: uri}
+        timezone: {type: string}
+        startAt: {$ref: "#/components/schemas/Timestamp"}
+        endAt: {$ref: "#/components/schemas/Timestamp"}
+        capacity: {type: integer, minimum: 1}
+        registrationMode: {type: string, enum: [closed, invite_only, public], default: invite_only}
+        registrationApproval: {type: string, enum: [automatic, manual], default: manual}
+        visibility: {type: string, enum: [private, unlisted, public], default: private}
+    WorkshopPatch:
+      type: object
+      minProperties: 1
+      additionalProperties: false
+      properties:
+        programId: {$ref: "#/components/schemas/Id"}
+        slug: {type: string, pattern: "^[a-z0-9-]{3,80}$"}
+        title: {type: string, minLength: 2, maxLength: 240}
+        subtitle: {type: string, maxLength: 300}
+        description: {type: string, maxLength: 10000}
+        deliveryMode: {type: string, enum: [in_person, online, hybrid]}
+        venueName: {type: string, maxLength: 240}
+        venueAddress: {type: string, maxLength: 1000}
+        meetingUrl: {type: string, format: uri}
+        timezone: {type: string}
+        startAt: {$ref: "#/components/schemas/Timestamp"}
+        endAt: {$ref: "#/components/schemas/Timestamp"}
+        capacity: {type: integer, minimum: 1}
+        registrationMode: {type: string, enum: [closed, invite_only, public]}
+        registrationApproval: {type: string, enum: [automatic, manual]}
+        visibility: {type: string, enum: [private, unlisted, public]}
+    WorkshopDayInput:
+      type: object
+      required: [date]
+      properties:
+        date: {type: string, format: date}
+        title: {type: string, maxLength: 200}
+        startTime: {type: string, pattern: "^([01]\\d|2[0-3]):[0-5]\\d$"}
+        endTime: {type: string, pattern: "^([01]\\d|2[0-3]):[0-5]\\d$"}
+    WorkshopDay:
+      allOf:
+        - $ref: "#/components/schemas/WorkshopDayInput"
+        - type: object
+          required: [id, position]
+          properties:
+            id: {$ref: "#/components/schemas/Id"}
+            position: {type: integer, minimum: 0}
+            agendaItems: {type: array, items: {$ref: "#/components/schemas/AgendaItem"}}
+    WorkshopDayEnvelope:
+      type: object
+      properties:
+        data: {$ref: "#/components/schemas/WorkshopDay"}
+    AgendaItemInput:
+      type: object
+      required: [dayId, type, title, startTime, endTime]
+      properties:
+        dayId: {$ref: "#/components/schemas/Id"}
+        type: {type: string, enum: [opening, presentation, discussion, activity, break, group_presentations, closing, custom]}
+        title: {type: string, minLength: 1, maxLength: 240}
+        description: {type: string, maxLength: 4000}
+        startTime: {type: string}
+        endTime: {type: string}
+        facilitatorUserId: {$ref: "#/components/schemas/Id"}
+        activityId: {$ref: "#/components/schemas/Id"}
+        visibility: {type: string, enum: [team, participants, public]}
+    AgendaItem:
+      allOf:
+        - $ref: "#/components/schemas/AgendaItemInput"
+        - type: object
+          required: [id, position]
+          properties:
+            id: {$ref: "#/components/schemas/Id"}
+            position: {type: integer, minimum: 0}
+    AgendaItemEnvelope:
+      type: object
+      properties:
+        data: {$ref: "#/components/schemas/AgendaItem"}
+    AgendaEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data: {type: array, items: {$ref: "#/components/schemas/WorkshopDay"}}
+    InvitationInput:
+      type: object
+      additionalProperties: false
+      properties:
+        email: {type: string, format: email}
+        organizationId: {$ref: "#/components/schemas/Id"}
+        intendedRole: {type: string, enum: [workshop_designer, facilitator, co_facilitator, coordinator, observer, participant], default: participant}
+        maxUses: {type: integer, minimum: 1, maximum: 500, default: 1}
+        expiresAt: {$ref: "#/components/schemas/Timestamp"}
+    InvitationCreatedEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [id, invitationUrl, expiresAt]
+          properties:
+            id: {$ref: "#/components/schemas/Id"}
+            invitationUrl: {type: string, format: uri}
+            expiresAt: {$ref: "#/components/schemas/Timestamp"}
+    AttendanceInput:
+      type: object
+      required: [workshopDayId, workshopMembershipId, status, method]
+      properties:
+        workshopDayId: {$ref: "#/components/schemas/Id"}
+        agendaItemId: {$ref: "#/components/schemas/Id"}
+        workshopMembershipId: {$ref: "#/components/schemas/Id"}
+        status: {type: string, enum: [present, late, excused, absent]}
+        method: {type: string, enum: [manual, qr, code, import]}
+        checkInCode: {type: string}
+        correctionReason: {type: string, maxLength: 1000}
+    GroupInput:
+      type: object
+      required: [name]
+      properties:
+        activityId: {$ref: "#/components/schemas/Id"}
+        name: {type: string, minLength: 1, maxLength: 160}
+        description: {type: string, maxLength: 2000}
+        color: {type: string, pattern: "^#[0-9A-Fa-f]{6}$"}
+        capacity: {type: integer, minimum: 1}
+        workshopMembershipIds: {type: array, uniqueItems: true, items: {$ref: "#/components/schemas/Id"}}
+    ActivityStatus:
+      type: string
+      enum: [draft, published, open, paused, closed, archived]
+    ActivityFieldInput:
+      type: object
+      required: [key, type, label]
+      additionalProperties: false
+      properties:
+        key: {type: string, pattern: "^[a-z][a-z0-9_]{1,63}$"}
+        type: {type: string, enum: [short_text, long_text, number, scale, single_choice, multi_choice, boolean, ranking, matrix, date, time, url, file]}
+        label: {type: string, minLength: 1, maxLength: 500}
+        description: {type: string, maxLength: 2000}
+        placeholder: {type: string, maxLength: 500}
+        required: {type: boolean, default: false}
+        sensitive: {type: boolean, default: false}
+        comparisonKey: {type: string, maxLength: 100}
+        validation: {type: object, additionalProperties: true}
+        visibilityRule: {type: object, additionalProperties: true}
+        scoring: {type: object, additionalProperties: true}
+        options:
+          type: array
+          items:
+            type: object
+            required: [key, label]
+            properties:
+              key: {type: string}
+              label: {type: string}
+              value: true
+    ActivityInput:
+      type: object
+      required: [type, title, ownershipMode, identityMode, fields]
+      additionalProperties: false
+      properties:
+        type: {type: string, enum: [survey, quiz, poll, individual_exercise, group_exercise, self_assessment, facilitator_assessment, commitment, form]}
+        title: {type: string, minLength: 1, maxLength: 240}
+        purpose: {type: string, maxLength: 2000}
+        instructions: {type: string, maxLength: 10000}
+        expectedOutput: {type: string, maxLength: 4000}
+        ownershipMode: {type: string, enum: [individual, organization, group, facilitator]}
+        identityMode: {type: string, enum: [named, facilitator_hidden, anonymous]}
+        durationMinutes: {type: integer, minimum: 1, maximum: 1440}
+        attemptPolicy: {type: string, enum: [single, multiple, editable_until_close]}
+        showResultsPolicy: {type: string, enum: [never, after_submit, after_close, facilitator_controlled]}
+        comparisonPhase: {type: string, enum: [pre, post]}
+        fields: {type: array, minItems: 1, items: {$ref: "#/components/schemas/ActivityFieldInput"}}
+        targets:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [type]
+            properties:
+              type: {type: string, enum: [all_participants, organization, group, user]}
+              id: {$ref: "#/components/schemas/Id"}
+    Activity:
+      allOf:
+        - $ref: "#/components/schemas/ActivityInput"
+        - type: object
+          required: [id, status, versionNo, entityVersion]
+          properties:
+            id: {$ref: "#/components/schemas/Id"}
+            status: {$ref: "#/components/schemas/ActivityStatus"}
+            versionNo: {type: integer, minimum: 1}
+            entityVersion: {type: integer, minimum: 1}
+    ActivityPatch:
+      type: object
+      minProperties: 1
+      additionalProperties: false
+      properties:
+        title: {type: string, minLength: 1, maxLength: 240}
+        purpose: {type: string, maxLength: 2000}
+        instructions: {type: string, maxLength: 10000}
+        expectedOutput: {type: string, maxLength: 4000}
+        durationMinutes: {type: integer, minimum: 1, maximum: 1440}
+        fields: {type: array, minItems: 1, items: {$ref: "#/components/schemas/ActivityFieldInput"}}
+    SubmissionDraftInput:
+      type: object
+      required: [answers, clientVersion]
+      additionalProperties: false
+      properties:
+        answers:
+          type: object
+          additionalProperties: true
+        clientVersion: {type: integer, minimum: 0}
+        clientSavedAt: {$ref: "#/components/schemas/Timestamp"}
+    Submission:
+      type: object
+      required: [id, activityId, status, version, answers, savedAt]
+      properties:
+        id: {$ref: "#/components/schemas/Id"}
+        activityId: {$ref: "#/components/schemas/Id"}
+        activityVersionId: {$ref: "#/components/schemas/Id"}
+        ownerType: {type: string, enum: [individual, organization, group, anonymous]}
+        ownerDisplay: {type: [string, "null"]}
+        status: {type: string, enum: [draft, submitted, returned, resubmitted, evaluated]}
+        version: {type: integer, minimum: 1}
+        answers: {type: object, additionalProperties: true}
+        savedAt: {$ref: "#/components/schemas/Timestamp"}
+        submittedAt: {anyOf: [{$ref: "#/components/schemas/Timestamp"}, {type: "null"}]}
+    EvaluationInput:
+      type: object
+      properties:
+        rubricId: {$ref: "#/components/schemas/Id"}
+        scores:
+          type: array
+          items:
+            type: object
+            required: [criterionId, numericValue]
+            properties:
+              criterionId: {$ref: "#/components/schemas/Id"}
+              rubricLevelId: {$ref: "#/components/schemas/Id"}
+              numericValue: {type: number, minimum: 0}
+              comment: {type: string, maxLength: 2000}
+        participantFeedback: {type: string, maxLength: 5000}
+        internalNote: {type: string, maxLength: 5000}
+        publish: {type: boolean, default: false}
+    LiveState:
+      type: object
+      required: [workshopId, runtimeStatus, stateVersion, updatedAt]
+      properties:
+        workshopId: {$ref: "#/components/schemas/Id"}
+        currentAgendaItemId: {anyOf: [{$ref: "#/components/schemas/Id"}, {type: "null"}]}
+        currentActivityId: {anyOf: [{$ref: "#/components/schemas/Id"}, {type: "null"}]}
+        runtimeStatus: {type: string, enum: [not_started, live, paused, ended]}
+        timerEndsAt: {anyOf: [{$ref: "#/components/schemas/Timestamp"}, {type: "null"}]}
+        announcement: {type: [string, "null"]}
+        stateVersion: {type: integer, minimum: 1}
+        updatedAt: {$ref: "#/components/schemas/Timestamp"}
+    LiveStatePatch:
+      type: object
+      minProperties: 1
+      properties:
+        currentAgendaItemId: {$ref: "#/components/schemas/Id"}
+        currentActivityId: {$ref: "#/components/schemas/Id"}
+        runtimeStatus: {type: string, enum: [not_started, live, paused, ended]}
+        timerEndsAt: {$ref: "#/components/schemas/Timestamp"}
+        announcement: {type: string, maxLength: 500}
+    Issue:
+      type: object
+      required: [code, message]
+      properties:
+        code: {type: string}
+        message: {type: string}
+        resourceType: {type: string}
+        resourceId: {$ref: "#/components/schemas/Id"}
+        actionUrl: {type: string}
+    ImportResult:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [validRows, invalidRows, errors]
+          properties:
+            validRows: {type: integer, minimum: 0}
+            invalidRows: {type: integer, minimum: 0}
+            created: {type: integer, minimum: 0}
+            updated: {type: integer, minimum: 0}
+            errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  row: {type: integer, minimum: 1}
+                  field: {type: string}
+                  message: {type: string}
+    WorkspaceEnvelope:
+      type: object
+      properties:
+        data: {$ref: "#/components/schemas/Workspace"}
+    PaginatedWorkspaces:
+      type: object
+      properties:
+        data: {type: array, items: {$ref: "#/components/schemas/Workspace"}}
+        meta: {$ref: "#/components/schemas/PageMeta"}
+    OrganizationEnvelope:
+      type: object
+      properties:
+        data: {$ref: "#/components/schemas/Organization"}
+    PaginatedOrganizations:
+      type: object
+      properties:
+        data: {type: array, items: {$ref: "#/components/schemas/Organization"}}
+        meta: {$ref: "#/components/schemas/PageMeta"}
+    WorkshopEnvelope:
+      type: object
+      properties:
+        data: {$ref: "#/components/schemas/Workshop"}
+    PaginatedWorkshops:
+      type: object
+      properties:
+        data: {type: array, items: {$ref: "#/components/schemas/Workshop"}}
+        meta: {$ref: "#/components/schemas/PageMeta"}
+    ActivityEnvelope:
+      type: object
+      properties:
+        data: {$ref: "#/components/schemas/Activity"}
+    PaginatedActivities:
+      type: object
+      properties:
+        data: {type: array, items: {$ref: "#/components/schemas/Activity"}}
+        meta: {$ref: "#/components/schemas/PageMeta"}
+    SubmissionEnvelope:
+      type: object
+      properties:
+        data: {$ref: "#/components/schemas/Submission"}
+    PaginatedSubmissions:
+      type: object
+      properties:
+        data: {type: array, items: {$ref: "#/components/schemas/Submission"}}
+        meta: {$ref: "#/components/schemas/PageMeta"}
+    LiveStateEnvelope:
+      type: object
+      properties:
+        data: {$ref: "#/components/schemas/LiveState"}
+  responses:
+    Unauthorized:
+      description: Authentication required.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/ErrorEnvelope"}
+    Forbidden:
+      description: Authenticated but not permitted.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/ErrorEnvelope"}
+    NotFound:
+      description: Resource not found in the authorized scope.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/ErrorEnvelope"}
+    Conflict:
+      description: State transition, duplicate, or optimistic concurrency conflict.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/ErrorEnvelope"}
+    ValidationError:
+      description: Input failed schema or business validation.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/ErrorEnvelope"}
+    RateLimited:
+      description: Too many requests.
+      headers:
+        Retry-After:
+          schema: {type: integer}
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/ErrorEnvelope"}
+    CurrentUser:
+      description: Current user and scoped memberships.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  user: {$ref: "#/components/schemas/User"}
+                  workspaces: {type: array, items: {$ref: "#/components/schemas/Workspace"}}
+    WorkspaceItem:
+      description: Workspace.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/WorkspaceEnvelope"}
+    WorkspaceList:
+      description: Workspaces.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/PaginatedWorkspaces"}
+    MemberItem:
+      description: Membership.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: {$ref: "#/components/schemas/Member"}
+    MemberList:
+      description: Memberships.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: {type: array, items: {$ref: "#/components/schemas/Member"}}
+              meta: {$ref: "#/components/schemas/PageMeta"}
+    OrganizationItem:
+      description: Organization.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/OrganizationEnvelope"}
+    OrganizationList:
+      description: Organizations.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/PaginatedOrganizations"}
+    WorkshopItem:
+      description: Workshop.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/WorkshopEnvelope"}
+    WorkshopList:
+      description: Workshops.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/PaginatedWorkshops"}
+    ActivityItem:
+      description: Activity.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/ActivityEnvelope"}
+    ActivityList:
+      description: Activities.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/PaginatedActivities"}
+    SubmissionItem:
+      description: Submission in the authorized identity mode.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/SubmissionEnvelope"}
+    SubmissionList:
+      description: Submissions with privacy policy applied.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/PaginatedSubmissions"}
+    LiveState:
+      description: Current live workshop state.
+      headers:
+        ETag:
+          schema: {type: string}
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/LiveStateEnvelope"}
+    NoChange:
+      description: State version has not changed.
+    NoContentEnvelope:
+      description: Operation completed.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: {type: "null"}

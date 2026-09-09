@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "purpose": "اختبار التقارير واللوحات والشهادات ببيانات اصطناعية فقط. ينشئ الأمر db:seed:demo-run نسخة منفصلة من الورشة المرجعية ولا يغير نسختها المجدولة.",
+  "sourceWorkshopId": "workshop_dt_why_2026",
+  "clone": {
+    "id": "workshop_dt_why_2026_completed_demo",
+    "slug": "digital-transformation-why-completed-demo",
+    "titleSuffix": " - محاكاة مكتملة",
+    "status": "completed"
+  },
+  "participantMetrics": [
+    {"no": 1, "attendance": "present", "preConviction": 2, "postConviction": 5, "preBeneficiaryLink": 2, "postBeneficiaryLink": 4, "rating": 5},
+    {"no": 2, "attendance": "present", "preConviction": 3, "postConviction": 5, "preBeneficiaryLink": 3, "postBeneficiaryLink": 5, "rating": 5},
+    {"no": 3, "attendance": "present", "preConviction": 3, "postConviction": 4, "preBeneficiaryLink": 2, "postBeneficiaryLink": 4, "rating": 4},
+    {"no": 4, "attendance": "present", "preConviction": 4, "postConviction": 5, "preBeneficiaryLink": 3, "postBeneficiaryLink": 5, "rating": 5},
+    {"no": 5, "attendance": "present", "preConviction": 3, "postConviction": 4, "preBeneficiaryLink": 3, "postBeneficiaryLink": 5, "rating": 4},
+    {"no": 6, "attendance": "present", "preConviction": 2, "postConviction": 4, "preBeneficiaryLink": 2, "postBeneficiaryLink": 4, "rating": 4},
+    {"no": 7, "attendance": "present", "preConviction": 3, "postConviction": 5, "preBeneficiaryLink": 3, "postBeneficiaryLink": 4, "rating": 5},
+    {"no": 8, "attendance": "present", "preConviction": 3, "postConviction": 5, "preBeneficiaryLink": 2, "postBeneficiaryLink": 5, "rating": 5},
+    {"no": 9, "attendance": "present", "preConviction": 4, "postConviction": 5, "preBeneficiaryLink": 3, "postBeneficiaryLink": 5, "rating": 4},
+    {"no": 10, "attendance": "present", "preConviction": 2, "postConviction": 4, "preBeneficiaryLink": 2, "postBeneficiaryLink": 4, "rating": 4},
+    {"no": 11, "attendance": "present", "preConviction": 3, "postConviction": 5, "preBeneficiaryLink": 3, "postBeneficiaryLink": 5, "rating": 5},
+    {"no": 12, "attendance": "present", "preConviction": 3, "postConviction": 4, "preBeneficiaryLink": 2, "postBeneficiaryLink": 4, "rating": 4},
+    {"no": 13, "attendance": "present", "preConviction": 4, "postConviction": 5, "preBeneficiaryLink": 3, "postBeneficiaryLink": 5, "rating": 5},
+    {"no": 14, "attendance": "present", "preConviction": 3, "postConviction": 5, "preBeneficiaryLink": 3, "postBeneficiaryLink": 4, "rating": 5},
+    {"no": 15, "attendance": "present", "preConviction": 2, "postConviction": 4, "preBeneficiaryLink": 2, "postBeneficiaryLink": 4, "rating": 4},
+    {"no": 16, "attendance": "present", "preConviction": 3, "postConviction": 4, "preBeneficiaryLink": 2, "postBeneficiaryLink": 4, "rating": 4},
+    {"no": 17, "attendance": "present", "preConviction": 3, "postConviction": 5, "preBeneficiaryLink": 3, "postBeneficiaryLink": 5, "rating": 5},
+    {"no": 18, "attendance": "present", "preConviction": 2, "postConviction": 4, "preBeneficiaryLink": 2, "postBeneficiaryLink": 4, "rating": 4},
+    {"no": 19, "attendance": "late", "preConviction": 3, "postConviction": 4, "preBeneficiaryLink": 3, "postBeneficiaryLink": 4, "rating": 4},
+    {"no": 20, "attendance": "late", "preConviction": 2, "postConviction": 4, "preBeneficiaryLink": 2, "postBeneficiaryLink": 4, "rating": 4},
+    {"no": 21, "attendance": "excused", "preConviction": 3, "postConviction": null, "preBeneficiaryLink": 2, "postBeneficiaryLink": null, "rating": null},
+    {"no": 22, "attendance": "absent", "preConviction": null, "postConviction": null, "preBeneficiaryLink": null, "postBeneficiaryLink": null, "rating": null}
+  ],
+  "groupOutputs": [
+    {"groupId": "group_education_grants", "service": "التقديم لمنحة تعليمية", "painPoint": "لا يعرف الطالب حالة الطلب وتتكرر الوثائق.", "impact": "تأخر وغموض قد يؤديان إلى فقد الفرصة وضعف الإنصاف."},
+    {"groupId": "group_learning_culture", "service": "برنامج تدريبي للشباب", "painPoint": "تنتهي المتابعة عند الحضور ولا يقاس التطبيق.", "impact": "لا تعرف المنظمة إن تحول النشاط إلى تعلم أو أثر."},
+    {"groupId": "group_health_protection", "service": "الإحالة إلى خدمة صحية أو حماية", "painPoint": "تكرار القصة وغياب تأكيد وصول الحالة.", "impact": "تأخر الخدمة وزيادة مخاطر الخصوصية وفقد المتابعة."},
+    {"groupId": "group_relief_social", "service": "التحقق وتقديم مساعدة", "painPoint": "تسجيلات متعددة وشكوى بلا حالة واضحة.", "impact": "ازدواج أو استبعاد غير عادل وضعف الثقة والمساءلة."},
+    {"groupId": "group_local_rural", "service": "متابعة مشروع خدمي بعد التسليم", "painPoint": "مسؤولية البلاغ والصيانة غير واضحة.", "impact": "توقف الخدمة وانخفاض المنفعة المستدامة للمجتمع."}
+  ],
+  "generationRules": {
+    "skipNullSurveyValues": true,
+    "createOneJourneySubmissionPerGroup": true,
+    "createOneProblemImpactSubmissionPerGroup": true,
+    "createOneOpportunitySubmissionPerAttendingOrganization": true,
+    "createOneCommitmentPerPresentOrLateParticipant": true,
+    "issueCertificatesTo": ["present", "late"],
+    "reportNarrative": {
+      "summary": "محاكاة مكتملة لاختبار التقرير فقط؛ جميع الأسماء والإجابات اصطناعية.",
+      "recommendations": [
+        "مراجعة بطاقات الفرص داخل كل منظمة.",
+        "تنفيذ تقييم جاهزية منظم في المرحلة التالية.",
+        "اختيار فرص صغيرة تقاس بقيمة المستفيد قبل شراء الأدوات."
+      ]
+    }
+  }
+}

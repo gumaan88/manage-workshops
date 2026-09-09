@@ -1,0 +1,360 @@
+{
+  "seedVersion": "1.0.0",
+  "generatedFor": "منصة ورش",
+  "workspace": {
+    "id": "ws_makeen_demo",
+    "slug": "institutional-empowerment",
+    "name": "برنامج التمكين المؤسسي وتطوير الأنظمة",
+    "description": "مساحة مرجعية لإدارة ورش تمكين منظمات المجتمع المدني.",
+    "defaultLocale": "ar",
+    "timezone": "Asia/Aden",
+    "primaryColor": "#17324D",
+    "accentColor": "#D6A84B"
+  },
+  "program": {
+    "id": "program_institutional_empowerment_2026",
+    "name": "التمكين المؤسسي وتطوير الأنظمة",
+    "description": "تعزيز كفاءة واستدامة منظمات المجتمع المدني وتطوير قدراتها المؤسسية والإدارية والتقنية.",
+    "status": "active"
+  },
+  "workshop": {
+    "id": "workshop_dt_why_2026",
+    "slug": "digital-transformation-why-2026",
+    "title": "التحول الرقمي في منظمات المجتمع المدني: لماذا؟",
+    "subtitle": "من قناعة القيادة إلى أثر أفضل على المستفيد النهائي",
+    "description": "ورشة قيادية تفاعلية تعزز وعي وقناعة مديري 22 منظمة بأهمية التحول الرقمي وعلاقته بجودة رحلة المستفيد. لا تتضمن في هذه المرحلة شراء برامج أو بناء أنظمة أو تقييم جاهزية تفصيلي أو إعداد استراتيجية تحول كاملة.",
+    "deliveryMode": "in_person",
+    "timezone": "Asia/Aden",
+    "startAt": "2026-09-23T05:30:00.000Z",
+    "endAt": "2026-09-23T09:30:00.000Z",
+    "capacity": 30,
+    "registrationMode": "invite_only",
+    "registrationApproval": "manual",
+    "status": "scheduled",
+    "visibility": "private",
+    "completionRule": {
+      "minimumAttendancePercent": 75,
+      "requiredActivities": [
+        "activity_pre_pulse",
+        "activity_beneficiary_journey",
+        "activity_problem_impact",
+        "activity_digital_opportunity",
+        "activity_leadership_commitment",
+        "activity_post_pulse"
+      ]
+    },
+    "objectives": [
+      {
+        "id": "obj_main",
+        "title": "تعزيز قناعة القيادات بأهمية التحول الرقمي",
+        "description": "أن يرى المدير التحول الرقمي كتحسين لطريقة تقديم القيمة للمستفيد، لا كمجرد شراء تقنية.",
+        "successIndicator": "ارتفاع متوسط القناعة البعدية وإمكانية شرح العلاقة بين مشكلة المستفيد وفرصة التحسين الرقمي."
+      },
+      {
+        "id": "obj_concepts",
+        "title": "تكوين فهم مشترك للمفهوم",
+        "description": "التمييز بين رقمنة مستند، أتمتة خطوة، والتحول الذي يعيد تصميم رحلة أو قرار.",
+        "successIndicator": "يصنف المشارك أمثلة عملية تصنيفًا صحيحًا."
+      },
+      {
+        "id": "obj_beneficiary",
+        "title": "ربط التحول الرقمي بتجربة المستفيد",
+        "description": "اكتشاف أين يحدث التأخير أو الغموض أو الانقطاع في رحلة خدمة واحدة.",
+        "successIndicator": "كل مجموعة تنتج رحلة ومشكلة واحدة وآثارًا واضحة."
+      },
+      {
+        "id": "obj_action",
+        "title": "تحويل الوعي إلى خطوة قابلة للتنفيذ",
+        "description": "صياغة فرصة رقمية أولية وخطوة قيادة خلال 30 يومًا دون القفز إلى أداة بعينها.",
+        "successIndicator": "كل منظمة تسلم بطاقة فرصة أولية وكل مدير يسجل التزامًا."
+      }
+    ],
+    "axes": [
+      {
+        "id": "axis_why",
+        "title": "لماذا التحول الرقمي؟",
+        "description": "القيمة والكفاءة والإنصاف والوصول والتعلم المؤسسي."
+      },
+      {
+        "id": "axis_beneficiary_journey",
+        "title": "رحلة المستفيد",
+        "description": "رؤية الخدمة من منظور المستفيد لا من هيكل الأقسام."
+      },
+      {
+        "id": "axis_problem_impact",
+        "title": "من المشكلة إلى الأثر",
+        "description": "كشف علاقة المشكلة التشغيلية بتجربة المستفيد وجودة الخدمة والأثر التنموي."
+      },
+      {
+        "id": "axis_opportunity",
+        "title": "الفرصة الرقمية قبل الأداة",
+        "description": "صياغة تحسين مرغوب ومؤشر نجاح ومتطلبات أولية دون اختيار برنامج سريعًا."
+      },
+      {
+        "id": "axis_leadership",
+        "title": "دور القيادة والخطوة التالية",
+        "description": "أسئلة وقرارات يملكها المدير تمهد لتقييم الجاهزية والخطط في المرحلة القادمة."
+      }
+    ],
+    "requirements": [
+      {
+        "phase": "before",
+        "title": "النبضة القبلية",
+        "description": "استبيان قصير لقياس القناعة والفهم الأولي واختيار خدمة واحدة للتحليل.",
+        "activityId": "activity_pre_pulse",
+        "required": true
+      },
+      {
+        "phase": "after",
+        "title": "تأكيد بطاقة الفرصة والالتزام",
+        "description": "مراجعة المخرج مع فريق المنظمة خلال أسبوعين وتحديد مسؤول عن الخطوة التالية.",
+        "required": false
+      }
+    ]
+  },
+  "agenda": [
+    {
+      "id": "agenda_01",
+      "start": "08:30",
+      "end": "08:45",
+      "type": "opening",
+      "title": "افتتاح ونبضة البداية",
+      "description": "توقعات واتفاق المشاركة وقياس قبلي سريع.",
+      "activityId": "activity_pre_pulse"
+    },
+    {
+      "id": "agenda_02",
+      "start": "08:45",
+      "end": "09:15",
+      "type": "presentation",
+      "title": "التحول الرقمي: لماذا قبل ماذا؟",
+      "description": "أمثلة تقارن الرقمنة والأتمتة والتحول من زاوية قيمة المستفيد."
+    },
+    {
+      "id": "agenda_03",
+      "start": "09:15",
+      "end": "09:45",
+      "type": "discussion",
+      "title": "سيناريو مستفيد: أين ضاعت القيمة؟",
+      "description": "حالة ميسرة تمنح الجميع لغة مشتركة حتى لو لم يقدم المديرون مشكلات من واقعهم."
+    },
+    {
+      "id": "agenda_04",
+      "start": "09:45",
+      "end": "10:25",
+      "type": "activity",
+      "title": "نشاط جماعي: خريطة رحلة المستفيد",
+      "description": "كل مجموعة تختار خدمة واحدة وترسم مراحلها ونقطة ألم واحدة.",
+      "activityId": "activity_beneficiary_journey"
+    },
+    {
+      "id": "agenda_05",
+      "start": "10:25",
+      "end": "10:35",
+      "type": "break",
+      "title": "استراحة"
+    },
+    {
+      "id": "agenda_06",
+      "start": "10:35",
+      "end": "11:15",
+      "type": "activity",
+      "title": "نشاط جماعي: سلسلة المشكلة والأثر",
+      "description": "المشكلة ← تجربة المستفيد ← جودة الخدمة ← الأثر والثقة.",
+      "activityId": "activity_problem_impact"
+    },
+    {
+      "id": "agenda_07",
+      "start": "11:15",
+      "end": "11:40",
+      "type": "group_presentations",
+      "title": "عرض المخرجات وعدسة الفرصة الرقمية",
+      "description": "عرض مختصر للمجموعات واستخلاص ما ينبغي تحسينه قبل الحديث عن الأدوات."
+    },
+    {
+      "id": "agenda_08",
+      "start": "11:40",
+      "end": "12:10",
+      "type": "activity",
+      "title": "عمل كل منظمة: بطاقة فرصة رقمية أولية",
+      "description": "يعمل كل مدير منفردًا أو مع ممثل منظمته إن وُجد، مستفيدًا من تحليل المجموعة.",
+      "activityId": "activity_digital_opportunity"
+    },
+    {
+      "id": "agenda_09",
+      "start": "12:10",
+      "end": "12:18",
+      "type": "activity",
+      "title": "التزام قيادي لمدة 30 يومًا",
+      "description": "خطوة خلال 30 يومًا وقياس ما تغير في القناعة والفهم.",
+      "activityId": "activity_leadership_commitment"
+    },
+    {
+      "id": "agenda_10",
+      "start": "12:18",
+      "end": "12:30",
+      "type": "closing",
+      "title": "النبضة البعدية والإغلاق",
+      "description": "قياس ما تغير، ثم تمهيد لتقييم الجاهزية وخطط التحول في الأنشطة المستقبلية.",
+      "activityId": "activity_post_pulse"
+    }
+  ],
+  "groups": [
+    {
+      "id": "group_education_grants",
+      "name": "التعليم والمنح والموهبة",
+      "journey": "إعلان/ترشيح ← تقديم ← مفاضلة ← التحاق ودعم ← تخرج/أثر",
+      "organizationNumbers": [2, 5, 11, 14, 22]
+    },
+    {
+      "id": "group_learning_culture",
+      "name": "التعليم المجتمعي وبناء القدرات والثقافة",
+      "journey": "استقطاب ← تسجيل ← مشاركة/تعلم ← تقييم ← تطبيق/أثر",
+      "organizationNumbers": [3, 7, 13, 17, 19]
+    },
+    {
+      "id": "group_health_protection",
+      "name": "الصحة والحماية والخدمات الأساسية",
+      "journey": "طلب/إحالة ← فرز وأهلية ← موعد/خدمة ← متابعة ← رضا/شكوى",
+      "organizationNumbers": [8, 9, 10, 12]
+    },
+    {
+      "id": "group_relief_social",
+      "name": "الإغاثة والتكافل والخدمات الإنسانية",
+      "journey": "تسجيل/بلاغ ← تحقق ← أولوية ← تسليم ← متابعة/شكوى",
+      "organizationNumbers": [1, 4, 16, 18]
+    },
+    {
+      "id": "group_local_rural",
+      "name": "التنمية المحلية والريفية والتمكين",
+      "journey": "رصد الاحتياج ← أولوية ← تصميم وشراكة ← تنفيذ ← تشغيل/صيانة ← أثر",
+      "organizationNumbers": [6, 15, 20, 21]
+    }
+  ],
+  "organizations": [
+    {"no": 1, "id": "org_01", "name": "جمعية السبيل الاجتماعية الخيرية", "region": "وادي حضرموت", "city": "تريم – الغرف", "primaryField": "تنمية اجتماعية وتكافل", "groupId": "group_relief_social"},
+    {"no": 2, "id": "org_02", "name": "جمعية رعاية طالب العلم", "region": "ساحل حضرموت", "city": "المكلا", "primaryField": "التعليم والمنح", "groupId": "group_education_grants"},
+    {"no": 3, "id": "org_03", "name": "جمعية نبراس للتنمية", "region": "وادي حضرموت", "city": "تريم", "primaryField": "التعليم الفني والتمكين", "groupId": "group_learning_culture"},
+    {"no": 4, "id": "org_04", "name": "مؤسسة استجابة للأعمال الإنسانية والاغاثية", "region": "ساحل حضرموت", "city": "حضرموت", "primaryField": "استجابة إنسانية وتنمية متعددة القطاعات", "groupId": "group_relief_social"},
+    {"no": 5, "id": "org_05", "name": "مؤسسة المنظومة للتنمية", "region": "ساحل حضرموت", "city": "المكلا", "primaryField": "تطوير ورقمنة التعليم الفني والمهني", "groupId": "group_education_grants"},
+    {"no": 6, "id": "org_06", "name": "مؤسسة الوداد للتنمية", "region": "وادي حضرموت", "city": "تريم", "primaryField": "تنمية محلية وتمكين اقتصادي", "groupId": "group_local_rural"},
+    {"no": 7, "id": "org_07", "name": "مؤسسة إمداد التنموية", "region": "ساحل حضرموت", "city": "المكلا – فوة", "primaryField": "التعليم وبناء القدرات", "groupId": "group_learning_culture"},
+    {"no": 8, "id": "org_08", "name": "مؤسسة بسمة للتنمية", "region": "وادي حضرموت", "city": "سيئون ووادي حضرموت", "primaryField": "المرأة والطفل والحماية", "groupId": "group_health_protection"},
+    {"no": 9, "id": "org_09", "name": "مؤسسة حضرموت لمكافحة السرطان", "region": "ساحل حضرموت", "city": "المكلا", "primaryField": "الصحة ومكافحة السرطان", "groupId": "group_health_protection"},
+    {"no": 10, "id": "org_10", "name": "مؤسسة روح الصحية", "region": "ساحل حضرموت", "city": "المكلا", "primaryField": "الصحة", "groupId": "group_health_protection"},
+    {"no": 11, "id": "org_11", "name": "مؤسسة قادة الأفق", "region": "وادي حضرموت", "city": "سيئون", "primaryField": "المنح وبناء قدرات الشباب", "groupId": "group_education_grants"},
+    {"no": 12, "id": "org_12", "name": "مؤسسة قطرات للتنمية", "region": "ساحل حضرموت", "city": "المكلا", "primaryField": "المياه والإصحاح والخدمات الأساسية", "groupId": "group_health_protection"},
+    {"no": 13, "id": "org_13", "name": "مؤسسة مدارات الثقافية", "region": "ساحل حضرموت", "city": "المكلا وسيئون", "primaryField": "الثقافة والفنون والاقتصاد الإبداعي", "groupId": "group_learning_culture"},
+    {"no": 14, "id": "org_14", "name": "مؤسسة مواهب", "region": "ساحل حضرموت", "city": "المكلا", "primaryField": "رعاية الموهوبين والتفوق", "groupId": "group_education_grants"},
+    {"no": 15, "id": "org_15", "name": "مؤسسة وادي العين للتنمية الاجتماعية", "region": "وادي حضرموت", "city": "مديرية وادي العين وحورة", "primaryField": "تنمية محلية ريفية متعددة القطاعات", "groupId": "group_local_rural"},
+    {"no": 16, "id": "org_16", "name": "مؤسسة أيادي الخير للتنمية", "region": "ساحل حضرموت", "city": "الديس الشرقية", "primaryField": "عمل خيري واجتماعي", "groupId": "group_relief_social"},
+    {"no": 17, "id": "org_17", "name": "مؤسسة الشافعي للتنمية", "region": "وادي حضرموت", "city": "وادي حضرموت", "primaryField": "التعليم والقيم ورعاية الطفولة", "groupId": "group_learning_culture"},
+    {"no": 18, "id": "org_18", "name": "مؤسسة وادي حضرموت الخيرية", "region": "وادي حضرموت", "city": "سيئون", "primaryField": "تكافل وإغاثة متعددة القطاعات", "groupId": "group_relief_social"},
+    {"no": 19, "id": "org_19", "name": "مؤسسة ابن عباس العلمية", "region": "ساحل حضرموت", "city": "المكلا", "primaryField": "التعليم الشرعي والعلمي", "groupId": "group_learning_culture"},
+    {"no": 20, "id": "org_20", "name": "مؤسسة وادي دوعن للتنمية", "region": "ساحل حضرموت", "city": "مديرية دوعن", "primaryField": "تنمية محلية متعددة القطاعات", "groupId": "group_local_rural"},
+    {"no": 21, "id": "org_21", "name": "مؤسسة الريف للتنمية", "region": "وادي حضرموت", "city": "حورة – مديرية وادي العين وحورة", "primaryField": "تنمية ريفية وتمكين مجتمعي", "groupId": "group_local_rural"},
+    {"no": 22, "id": "org_22", "name": "مؤسسة الصندوق الخيري للطلاب المتفوقين", "region": "ساحل حضرموت", "city": "المكلا وسيئون", "primaryField": "منح ورعاية الطلاب المتفوقين", "groupId": "group_education_grants"}
+  ],
+  "activities": [
+    {
+      "id": "activity_pre_pulse",
+      "type": "survey",
+      "title": "النبضة القبلية",
+      "purpose": "قياس القناعة والفهم واختيار خدمة واحدة للتحليل.",
+      "ownershipMode": "individual",
+      "identityMode": "facilitator_hidden",
+      "durationMinutes": 10,
+      "comparisonPhase": "pre",
+      "fields": [
+        {"key": "conviction", "type": "scale", "label": "أرى أن التحول الرقمي أولوية قيادية لمنظمتي خلال العام القادم.", "required": true, "comparisonKey": "leadership_conviction", "validation": {"min": 1, "max": 5, "minLabel": "لا أوافق", "maxLabel": "أوافق بشدة"}},
+        {"key": "beneficiary_link", "type": "scale", "label": "أستطيع شرح كيف يؤثر التحول الرقمي على جودة تجربة المستفيد.", "required": true, "comparisonKey": "beneficiary_link", "validation": {"min": 1, "max": 5}},
+        {"key": "concept_choice", "type": "single_choice", "label": "أي عبارة أقرب لفهمك للتحول الرقمي؟", "required": true, "options": ["تحويل الملفات الورقية إلى إلكترونية", "شراء برامج أحدث", "إعادة تصميم طريقة تقديم القيمة والقرارات باستخدام التقنية والبيانات", "إنشاء حسابات على شبكات التواصل"]},
+        {"key": "service_choice", "type": "short_text", "label": "ما الخدمة أو البرنامج الواحد الذي تود تحليله اليوم؟", "required": true, "validation": {"maxLength": 160}},
+        {"key": "main_concern", "type": "long_text", "label": "ما أكبر قلق أو سؤال لديك حول التحول الرقمي؟", "required": false, "validation": {"maxLength": 500}}
+      ]
+    },
+    {
+      "id": "activity_beneficiary_journey",
+      "type": "group_exercise",
+      "title": "خريطة رحلة المستفيد",
+      "purpose": "رؤية خدمة واحدة من منظور المستفيد وتحديد نقطة ألم واحدة.",
+      "ownershipMode": "group",
+      "identityMode": "named",
+      "durationMinutes": 35,
+      "fields": [
+        {"key": "service", "type": "short_text", "label": "الخدمة أو البرنامج المختار", "required": true},
+        {"key": "beneficiary", "type": "short_text", "label": "من المستفيد المحدد؟", "required": true},
+        {"key": "steps", "type": "long_text", "label": "اكتبوا مراحل الرحلة من معرفة الخدمة حتى ما بعد الحصول عليها.", "required": true},
+        {"key": "pain_point", "type": "long_text", "label": "ما نقطة الألم الواحدة الأكثر تأثيرًا؟", "required": true},
+        {"key": "evidence", "type": "long_text", "label": "ما الذي يجعلكم تعتقدون أنها مشكلة؟", "required": false}
+      ]
+    },
+    {
+      "id": "activity_problem_impact",
+      "type": "group_exercise",
+      "title": "سلسلة المشكلة والأثر",
+      "purpose": "كشف العلاقة بين المشكلة وما يشعر به المستفيد وجودة الخدمة والأثر والثقة.",
+      "ownershipMode": "group",
+      "identityMode": "named",
+      "durationMinutes": 35,
+      "fields": [
+        {"key": "problem", "type": "long_text", "label": "المشكلة المحددة", "required": true},
+        {"key": "beneficiary_experience", "type": "long_text", "label": "كيف يعيشها أو يشعر بها المستفيد؟", "required": true},
+        {"key": "service_effect", "type": "long_text", "label": "كيف تؤثر على جودة أو سرعة أو عدالة الخدمة؟", "required": true},
+        {"key": "development_effect", "type": "long_text", "label": "كيف يمكن أن تؤثر على النتيجة التنموية أو الثقة؟", "required": true},
+        {"key": "missing_information", "type": "long_text", "label": "ما المعلومة التي نفتقدها لاتخاذ قرار أفضل؟", "required": true}
+      ]
+    },
+    {
+      "id": "activity_digital_opportunity",
+      "type": "individual_exercise",
+      "title": "بطاقة فرصة رقمية أولية",
+      "purpose": "تحويل التحليل الجماعي إلى فرصة تخص كل منظمة دون اختيار أداة مبكرًا.",
+      "ownershipMode": "organization",
+      "identityMode": "named",
+      "durationMinutes": 25,
+      "fields": [
+        {"key": "opportunity_title", "type": "short_text", "label": "عنوان الفرصة", "required": true},
+        {"key": "problem", "type": "long_text", "label": "ما المشكلة التي تستحق المعالجة؟", "required": true},
+        {"key": "beneficiary_value", "type": "long_text", "label": "ما القيمة أو التحسن الذي سيشعر به المستفيد؟", "required": true},
+        {"key": "process_change", "type": "long_text", "label": "ما الذي ينبغي أن يتغير في الرحلة أو القرار قبل الحديث عن الأداة؟", "required": true},
+        {"key": "data_needed", "type": "long_text", "label": "ما الحد الأدنى من البيانات اللازمة؟", "required": true},
+        {"key": "success_indicator", "type": "short_text", "label": "كيف سنعرف أن التحسين نجح؟", "required": true},
+        {"key": "first_step", "type": "short_text", "label": "ما أول خطوة صغيرة لاختبار الفرصة؟", "required": true},
+        {"key": "owner", "type": "short_text", "label": "من يقود الخطوة داخل المنظمة؟", "required": true},
+        {"key": "risk", "type": "long_text", "label": "ما خطر الخصوصية أو التبني أو الاستدامة الذي يجب الانتباه له؟", "required": false}
+      ]
+    },
+    {
+      "id": "activity_leadership_commitment",
+      "type": "commitment",
+      "title": "التزام قيادي لمدة 30 يومًا",
+      "purpose": "تحويل القناعة إلى سؤال وقرار وخطوة يملكها المدير.",
+      "ownershipMode": "individual",
+      "identityMode": "named",
+      "durationMinutes": 8,
+      "fields": [
+        {"key": "decision", "type": "long_text", "label": "ما القرار أو السؤال القيادي الذي ستفتحه مع فريقك؟", "required": true},
+        {"key": "action", "type": "short_text", "label": "ما الخطوة التي ستنفذها خلال 30 يومًا؟", "required": true},
+        {"key": "support", "type": "short_text", "label": "ما الدعم الذي تحتاجه؟", "required": false}
+      ]
+    },
+    {
+      "id": "activity_post_pulse",
+      "type": "survey",
+      "title": "النبضة البعدية وتقييم الورشة",
+      "purpose": "قياس تغير القناعة والفهم وجودة الورشة.",
+      "ownershipMode": "individual",
+      "identityMode": "facilitator_hidden",
+      "durationMinutes": 7,
+      "comparisonPhase": "post",
+      "fields": [
+        {"key": "conviction", "type": "scale", "label": "أرى أن التحول الرقمي أولوية قيادية لمنظمتي خلال العام القادم.", "required": true, "comparisonKey": "leadership_conviction", "validation": {"min": 1, "max": 5}},
+        {"key": "beneficiary_link", "type": "scale", "label": "أستطيع شرح كيف يؤثر التحول الرقمي على جودة تجربة المستفيد.", "required": true, "comparisonKey": "beneficiary_link", "validation": {"min": 1, "max": 5}},
+        {"key": "insight", "type": "long_text", "label": "ما الفكرة الأهم التي تغيرت أو اتضحت لك؟", "required": true},
+        {"key": "workshop_rating", "type": "scale", "label": "إلى أي درجة كانت الورشة عملية ومرتبطة بواقع منظمتك؟", "required": true, "validation": {"min": 1, "max": 5}},
+        {"key": "improvement", "type": "long_text", "label": "ما التحسين المقترح للورشة القادمة؟", "required": false}
+      ]
+    }
+  ]
+}
