@@ -4,6 +4,7 @@
   "main": "src/worker/index.ts",
   "compatibility_date": "2026-09-09",
   "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
   "assets": {
     "directory": "./dist/client",
     "binding": "ASSETS",
@@ -16,6 +17,12 @@
       "database_name": "gumaan-workshops-prod",
       "database_id": "a3356d0e-fe94-47d8-9c5f-d2082c1d114d",
       "migrations_dir": "database"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "workshops.gumaan.app",
+      "custom_domain": true
     }
   ],
   "observability": {
