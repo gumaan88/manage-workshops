@@ -228,12 +228,19 @@ export const live_states = sqliteTable('live_states', {
 
 export const certificates = sqliteTable('certificates', {
   id: text('id').primaryKey(),
+  workspace_id: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
   workshop_id: text('workshop_id').notNull().references(() => workshops.id, { onDelete: 'cascade' }),
-  user_id: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
-  certificate_code: text('certificate_code').notNull().unique(),
+  workshop_membership_id: text('workshop_membership_id').notNull(),
+  template_id: text('template_id').notNull(),
+  public_code: text('public_code').notNull().unique(),
+  recipient_name: text('recipient_name').notNull(),
+  workshop_title: text('workshop_title').notNull(),
   issued_at: text('issued_at').notNull(),
-  status: text('status').notNull().default('active'),
-  created_at: text('created_at').notNull(),
+  issued_by: text('issued_by').references(() => user.id),
+  status: text('status').notNull().default('valid'),
+  revoked_at: text('revoked_at'),
+  revoked_by: text('revoked_by').references(() => user.id),
+  revoke_reason: text('revoke_reason'),
 });
 
 export const audit_logs = sqliteTable('audit_logs', {

@@ -14,21 +14,15 @@
     {
       "binding": "DB",
       "database_name": "gumaan-workshops-prod",
-      "database_id": "placeholder-id-local-or-remote",
+      "database_id": "a3356d0e-fe94-47d8-9c5f-d2082c1d114d",
       "migrations_dir": "database"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "FILES",
-      "bucket_name": "gumaan-workshops-files-prod"
     }
   ],
   "observability": {
     "enabled": true
   },
   "vars": {
-    "APP_ENV": "development",
-    "APP_BASE_URL": "http://localhost:5173"
+    "APP_ENV": "production",
+    "APP_BASE_URL": "https://workshops.gumaan.app"
   }
 }

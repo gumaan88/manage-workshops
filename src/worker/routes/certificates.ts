@@ -10,20 +10,16 @@ export const certificatesRouter = new Hono<AppContext>();
 
 // Issue certificate (AC-012)
 certificatesRouter.post('/issue', requireAuth, zValidator('json', issueCertificateSchema), async (c) => {
-  const db = c.get('db' as any);
+  const db = c.get('db');
   const body = c.req.valid('json');
 
-  // Check if participant already has a certificate for this workshop (AC-012)
-  const existing = await db.query.certificates.findFirst({
-    where: (cert: any, { and, eq }: any) => and(
-      eq(cert.workshop_id, body.workshopId),
-      eq(cert.user_id, body.participantId)
-    )
+  const ws = await db.query.workshops.findFirst({
+    where: eq(workshops.id, body.workshopId)
   });
 
-  if (existing) {
-    return c.json({ data: existing });
-  }
+  const recipient = await db.query.user.findFirst({
+    where: eq(user.id, body.participantId)
+  });
 
   const now = new Date().toISOString();
   const id = 'cert_' + crypto.randomUUID().slice(0, 8);
@@ -31,12 +27,15 @@ certificatesRouter.post('/issue', requireAuth, zValidator('json', issueCertifica
 
   await db.insert(certificates).values({
     id,
+    workspace_id: ws?.workspace_id || 'ws_default',
     workshop_id: body.workshopId,
-    user_id: body.participantId,
-    certificate_code: code,
+    workshop_membership_id: 'wsm_' + body.participantId,
+    template_id: body.templateId || 'cert_template_seed',
+    public_code: code,
+    recipient_name: recipient?.name || 'مشارك معتمد',
+    workshop_title: ws?.title || 'ورشة عمل',
     issued_at: now,
-    status: 'active',
-    created_at: now
+    status: 'valid'
   });
 
   return c.json({
@@ -44,18 +43,18 @@ certificatesRouter.post('/issue', requireAuth, zValidator('json', issueCertifica
       id,
       certificateCode: code,
       issuedAt: now,
-      status: 'active'
+      status: 'valid'
     }
   }, 201);
 });
 
 // Public verify certificate (AC-012: does not reveal email or sensitive PII)
 certificatesRouter.get('/verify/:code', async (c) => {
-  const db = c.get('db' as any);
+  const db = c.get('db');
   const code = c.req.param('code');
 
   const cert = await db.query.certificates.findFirst({
-    where: eq(certificates.certificate_code, code)
+    where: eq(certificates.public_code, code)
   });
 
   if (!cert) {
@@ -67,21 +66,13 @@ certificatesRouter.get('/verify/:code', async (c) => {
     }, 404);
   }
 
-  const ws = await db.query.workshops.findFirst({
-    where: eq(workshops.id, cert.workshop_id)
-  });
-
-  const participant = await db.query.user.findFirst({
-    where: eq(user.id, cert.user_id)
-  });
-
   return c.json({
     data: {
-      certificateCode: cert.certificate_code,
+      certificateCode: cert.public_code,
       issuedAt: cert.issued_at,
       status: cert.status,
-      workshopTitle: ws?.title || 'ورشة عمل',
-      recipientName: participant?.name || 'مشارك معتمد'
+      workshopTitle: cert.workshop_title,
+      recipientName: cert.recipient_name
       // Note: email and other private details omitted deliberately for privacy (AC-012)
     }
   });
